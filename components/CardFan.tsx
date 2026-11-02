@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { APPS, CategoryId, MILLERSTORM, SITES } from "@/lib/projects";
 import { DetailView } from "./Collection";
@@ -25,6 +25,15 @@ export default function CardFan({ start, onClose, onCollection }: { start: numbe
     if (card.kind === "ms") onCollection("crm");
     else setDet({ kind: card.kind, i: card.i });
   }, [at, onCollection]);
+
+  const swipe = useRef<{ x: number; moved: boolean } | null>(null); // a swipe across the cards flips to the next one
+
+  // The page behind stays put while the fan is open (on phones the desk page scrolls).
+  useEffect(() => {
+    const html = document.documentElement, prev = html.style.overflow;
+    html.style.overflow = "hidden";
+    return () => { html.style.overflow = prev; };
+  }, []);
 
   useEffect(() => {
     if (det) return; // the detail view handles its own keys
@@ -62,16 +71,21 @@ export default function CardFan({ start, onClose, onCollection }: { start: numbe
       <div className="fan-intro">
         <p className="fan-kick">Websites, apps and enterprise software.</p>
         <h2>The K/V collection.</h2>
-        <p className="fan-sub">Move over a card for foil. Tap a card to explore.</p>
+        <p className="fan-sub"><span className="on-mouse">Move over a card for foil. Tap a card to explore.</span><span className="on-touch">Swipe to browse. Tap a card to explore.</span></p>
       </div>
-      <div className="fan-stage">
+      <div className="fan-stage" onPointerDown={(e) => { swipe.current = { x: e.clientX, moved: false }; }}
+        onPointerUp={(e) => {
+          const s = swipe.current; if (!s) return;
+          const dx = e.clientX - s.x;
+          if (Math.abs(dx) > 40) { s.moved = true; go(dx < 0 ? 1 : -1); setTimeout(() => { s.moved = false; }, 60); }
+        }}>
         <div className="fan">
           {CARDS.map((card, i) => {
             const d = (((i - at) % n) + n + half) % n - half, ad = Math.abs(d); // wrap around so cards fan out on both sides
             return (
               <button key={card.key} type="button" className={`card ${d === 0 ? "on" : ""}`} aria-label={d === 0 ? `Open ${card.name}` : `Show ${card.name}`}
                 style={{ "--d": d, "--ad": ad, "--tint": card.tint, zIndex: 50 - ad, opacity: ad > 5 ? 0 : 1 } as React.CSSProperties}
-                onClick={() => (d === 0 ? pull() : setAt(i))} onPointerMove={d === 0 ? foil : undefined} onPointerLeave={d === 0 ? unfoil : undefined}>
+                onClick={() => { if (swipe.current?.moved) return; d === 0 ? pull() : setAt(i); }} onPointerMove={d === 0 ? foil : undefined} onPointerLeave={d === 0 ? unfoil : undefined}>
                 <span className="card-in">
                   <span className="card-top"><b>K/V ORIGINALS</b><i>✧</i></span>
                   <span className="card-name">{card.name}</span>

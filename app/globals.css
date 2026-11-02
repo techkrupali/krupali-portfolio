@@ -214,7 +214,7 @@ body{background:var(--paper);color:var(--ink);font-size:16px;line-height:1.5;min
 .beam{position:absolute;z-index:6;left:50%;top:calc(100% - 251px);bottom:208px;width:min(980px,calc(100vw - 32px));margin-left:calc(min(980px,calc(100vw - 32px)) / -2);clip-path:polygon(0 0,100% 0,52.4% 100%,47.6% 100%);background:linear-gradient(180deg,#d9ef9f14,#e9ffc070);pointer-events:none}
 
 /* ---------- Card fan (projects) ---------- */
-.fan-wrap{position:absolute;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;overflow:hidden;color:#f2f2f5;background:#1a0e0699;-webkit-backdrop-filter:blur(16px) saturate(.9);backdrop-filter:blur(16px) saturate(.9)}
+.fan-wrap{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;align-items:center;overflow:hidden;color:#f2f2f5;background:#1a0e0699;-webkit-backdrop-filter:blur(16px) saturate(.9);backdrop-filter:blur(16px) saturate(.9)}
 .fan-top{position:absolute;left:0;right:0;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:22px clamp(16px,4vw,48px)}
 .fan-top p{font:400 10px var(--font-body),monospace;letter-spacing:.16em;color:#f4ecdcb3}
 .fan-top p i{margin:0 14px;font-style:normal;opacity:.5}
@@ -226,9 +226,12 @@ body{background:var(--paper);color:var(--ink);font-size:16px;line-height:1.5;min
 .fan-kick{font:400 9.5px var(--font-body),monospace;letter-spacing:.16em;text-transform:uppercase;color:#d9edaf}
 .fan-intro h2{margin-top:12px;font:700 clamp(32px,4vw,48px)/1 var(--font-head),sans-serif;letter-spacing:-.045em}
 .fan-sub{margin-top:12px;font:400 14px var(--font-head),sans-serif;color:#b6bdcf}
-.fan-stage{position:relative;flex:1;width:100%;min-height:330px}
-.fan{position:absolute;left:50%;bottom:78px;width:0;height:0}
-.card{--w:210px;--rx:0deg;--ry:0deg;position:absolute;left:calc(var(--w) / -2);bottom:0;width:var(--w);height:calc(var(--w) * 1.42);padding:2px;border-radius:15px;background:linear-gradient(140deg,var(--tint),#f3e4bf 30%,#a9b8ff 55%,#9fe3cf 75%,var(--tint));transform-origin:50% 260%;transform:rotate(calc(var(--d) * 6.5deg)) translateY(calc(var(--ad) * 4px));filter:brightness(calc(1 - var(--ad) * .09));box-shadow:0 30px 50px -18px #000c;transition:transform .6s cubic-bezier(.2,.8,.2,1),filter .4s,opacity .4s}
+.fan-stage{--w:210px;position:relative;flex:1;width:100%;min-height:0}
+.fan-stage{touch-action:pan-y}
+.fan-sub .on-touch{display:none}
+@media (hover:none){.fan-sub .on-mouse{display:none}.fan-sub .on-touch{display:inline}}
+.fan{position:absolute;left:50%;top:calc(50% + var(--w) * .95);width:0;height:0}
+.card{--rx:0deg;--ry:0deg;position:absolute;left:calc(var(--w) / -2);bottom:0;width:var(--w);height:calc(var(--w) * 1.42);padding:2px;border-radius:15px;background:linear-gradient(140deg,var(--tint),#f3e4bf 30%,#a9b8ff 55%,#9fe3cf 75%,var(--tint));transform-origin:50% 260%;transform:rotate(calc(var(--d) * 6.5deg)) translateY(calc(var(--ad) * 4px));filter:brightness(calc(1 - var(--ad) * .09));box-shadow:0 30px 50px -18px #000c;transition:transform .6s cubic-bezier(.2,.8,.2,1),filter .4s,opacity .4s}
 .card.on{transform:translateY(-30px) scale(1.12) perspective(800px) rotateX(var(--rx)) rotateY(var(--ry));filter:none;box-shadow:0 0 0 1px #ffffff33,0 40px 60px -16px #000,0 0 44px -8px var(--tint);transition:transform .35s cubic-bezier(.2,.8,.2,1),filter .4s}
 .card:not(.on):hover{filter:brightness(1)}
 .card-in{position:relative;display:flex;flex-direction:column;height:100%;padding:13px 13px 11px;border-radius:13px;overflow:hidden;text-align:left;background:radial-gradient(ellipse at 50% 0%,#2a2e45,transparent 60%),linear-gradient(170deg,#191c28,#0c0e15)}
@@ -253,6 +256,12 @@ body{background:var(--paper);color:var(--ink);font-size:16px;line-height:1.5;min
 .fan-pull{display:flex;justify-content:space-between;align-items:center;width:min(250px,80vw);margin:22px 0 clamp(20px,4vh,40px);padding:13px 20px;border-radius:3px;background:#dff3b0;color:#1b2b16;font:600 13px var(--font-head),sans-serif;transition:transform .2s,background .2s}
 .fan-pull:hover{background:#ecffc4;transform:translateY(-2px)}
 .fan-det{position:fixed;inset:0;z-index:90}
+@media (max-height:800px) and (min-width:900px){
+  .fan-stage{--w:178px}
+  .fan-intro{margin-top:62px}
+  .fan-intro h2{font-size:38px}
+  .fan-pull{margin:14px 0 18px}
+}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ---------- Record player ---------- */
@@ -620,14 +629,36 @@ body{background:var(--paper);color:var(--ink);font-size:16px;line-height:1.5;min
   .pj-cols aside{padding-left:0;border-left:0}
   .pj-ul.two{grid-template-columns:1fr}
   .pj-tiles{grid-template-columns:1fr 1fr}
-  .card{--w:156px}
+  .det .browser-scroll{max-height:42svh}
+  .det-grid{gap:20px;padding-top:18px}
+  .det-title{font-size:36px;margin-top:6px}
+  .fan-stage{--w:clamp(118px,min(calc((100svh - 250px) / 2.75),47vw),196px)}
+  .fan{top:calc(50% + var(--w) * .84)}
+  .fan-top{padding:14px 14px}
+  .fan-x{width:40px;height:40px}
+  .fan-chip{padding:9px 13px;font-size:10.5px}
+  .fan-intro{margin-top:64px}
+  .fan-kick{font-size:8.5px;letter-spacing:.12em}
+  .fan-intro h2{margin-top:8px;font-size:30px}
+  .fan-sub{margin-top:8px;font-size:13px}
+  .fan-arrow{width:40px;height:40px;font-size:16px}
+  .fan-count{font-size:9px}
+  .fan-line{font-size:12px}
+  .fan-pull{margin:14px 0 calc(16px + env(safe-area-inset-bottom));padding:12px 18px}
   .card[style*="--ad: 4"],.card[style*="--ad: 5"]{opacity:0!important}
   .fan-info{gap:12px}
   .fan-top p{font-size:9px;letter-spacing:.1em}
   .fan-top p span{display:none}
   .proj-foot span{display:none}
   .desk[data-panel] .play-ui{opacity:0;pointer-events:none}
-  .fan-name{font-size:20px}
+  .fan-name{margin-top:3px;font-size:19px}
+}
+/* Short phones: smaller cards, drop the hint line. */
+@media (max-width:899px) and (max-height:760px){
+  .fan-intro{margin-top:58px}
+  .fan-intro h2{font-size:26px}
+  .fan-sub{display:none}
+  .fan-pull{margin-top:10px}
 }
 @media (hover:none){.cursor{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
