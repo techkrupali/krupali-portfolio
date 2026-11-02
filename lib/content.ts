@@ -5,11 +5,20 @@ export const CFG = {
   linkedin: "https://www.linkedin.com/in/krupali-vekariya-671855269/",
   whatsapp: process.env.NEXT_PUBLIC_WHATSAPP ?? "",
 };
+// The console's home screen and menu.
+export const HOME = {
+  kick: "Krupali Vekariya / Player one",
+  title: "Building ideas into digital reality.",
+  text: "Full-stack AI engineer. Product builder.",
+};
 export const MENU = [
-  ["about", "ABOUT"], ["projects", "PROJECTS"], ["stack", "TECH STACK"],
-  ["build", "WHAT I BUILD"], ["exp", "EXPERIENCE"], ["contact", "CONTACT"],
+  ["projects", "Projects"], ["about", "About"], ["exp", "Experience"],
+  ["stack", "Tech stack"], ["build", "What I build"], ["contact", "Contact"],
 ] as const;
-export type Mode = "title" | "boot" | "menu" | (typeof MENU)[number][0];
+export type Mode = "home" | (typeof MENU)[number][0];
+// Every menu item except Projects opens in the projected panel above the console.
+export type Section = Exclude<Mode, "home" | "projects">;
+export const isSection = (m: Mode): m is Section => m !== "home" && m !== "projects";
 
 // Projects live in lib/projects.ts.
 export const STACK_INTRO = {

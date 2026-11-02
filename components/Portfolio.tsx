@@ -1,10 +1,12 @@
 "use client";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { EXPERIENCE, MENU, Mode, STACK } from "@/lib/content";
-import { CATEGORIES, CategoryId } from "@/lib/projects";
+import { MENU, Mode, isSection } from "@/lib/content";
+import { CATEGORIES, CategoryId, PROJECT_ROWS } from "@/lib/projects";
 import { INTRO_LINES, createIntro, warmVoices } from "@/lib/intro";
+import CardFan, { FIRST_APP } from "./CardFan";
 import Collection from "./Collection";
+import Projector from "./Projector";
 import { Screen } from "./Screens";
 import SimpleView from "./SimpleView";
 import Turntable from "./Turntable";
@@ -27,31 +29,41 @@ const Edges = ({ n, from, to }: { n: number; from: string; to: string }) => (
 export default function Portfolio() {
   const [view, setView] = useState<View>("desk");
   const [colCat, setColCat] = useState<CategoryId>("web");
+  const [fan, setFan] = useState<number | null>(null);
   const [playing, setPlaying] = useState(false);
   const [vp, setVp] = useState({ w: 1440, h: 900 });
-  const [mode, setMode] = useState<Mode>("title");
-  const [mi, setMi] = useState(0), [pi, setPi] = useState(0), [si, setSi] = useState(0), [ei, setEi] = useState(0);
-  const scr = useRef<HTMLDivElement>(null), cur = useRef<HTMLDivElement>(null), face = useRef<HTMLDivElement>(null);
+  const [mode, setMode] = useState<Mode>("home");
+  const [mi, setMi] = useState(0), [pi, setPi] = useState(0);
+  const scr = useRef<HTMLDivElement>(null), cur = useRef<HTMLDivElement>(null), face = useRef<HTMLDivElement>(null), panelBody = useRef<HTMLDivElement>(null);
   const intro = useRef<ReturnType<typeof createIntro> | null>(null);
   const [line, setLine] = useState(-1);
-  const nStack = STACK.length;
+  const panel = view === "play" && isSection(mode) ? mode : null;
 
   const pickUp = useCallback(() => {
     setView("play");
     window.scrollTo({ top: 0, behavior: "smooth" });
     setTimeout(() => scr.current?.focus({ preventScroll: true }), 700);
   }, []);
-  const putDown = useCallback(() => { setView("desk"); setMode("title"); }, []);
+  const putDown = useCallback(() => { setView("desk"); setMode("home"); }, []);
   // Page-level views get their own URL (?view=simple, ?view=projects&cat=apps) so links and the back button work.
   const go = useCallback((v: View, cat?: CategoryId) => {
     if (cat) setColCat(cat);
+    setFan(null);
     setView(v);
-    if (v === "desk") setMode("title");
+    if (v === "desk") setMode("home");
     const url = v === "simple" || v === "projects" ? `?view=${v}${v === "projects" && cat && cat !== "web" ? `&cat=${cat}` : ""}` : window.location.pathname;
     window.history.pushState(null, "", url);
     window.scrollTo(0, 0);
   }, []);
   const openCollection = useCallback((cat: CategoryId) => go("projects", cat), [go]);
+  // Rows on the console's Projects screen: the case study, the card fan (websites / apps), or the full collection.
+  const runRow = useCallback((i: number) => {
+    setPi(i);
+    const id = PROJECT_ROWS[i].id;
+    if (id === "ms") openCollection("crm");
+    else if (id === "all") openCollection("web");
+    else setFan(id === "web" ? 1 : FIRST_APP);
+  }, [openCollection]);
   // Putting on the record plays the spoken intro; it lifts itself when the intro ends.
   const setRecord = (on: boolean) => {
     intro.current ??= createIntro();
@@ -62,30 +74,28 @@ export default function Portfolio() {
   useEffect(() => { warmVoices(); return () => intro.current?.stop(); }, []);
 
   const key = useCallback((k: K) => {
-    const scroll = (d: number) => scr.current && (scr.current.scrollTop += d);
-    if (mode === "boot") return;
-    if (k === "b" && (mode === "title" || mode === "menu")) return putDown();
-    if (mode === "title") { if (k === "start" || k === "a") { setMode("boot"); setTimeout(() => setMode("menu"), 900); } return; }
-    if (k === "start") return setMode("menu");
-    if (mode === "menu") {
+    if (k === "start") return setMode("home");
+    if (mode === "home") {
       if (k === "up") setMi((i) => (i + MENU.length - 1) % MENU.length);
-      if (k === "down") setMi((i) => (i + 1) % MENU.length);
-      if (k === "a" || k === "right") setMode(MENU[mi][0]);
+      else if (k === "down") setMi((i) => (i + 1) % MENU.length);
+      else if (k === "a" || k === "right") setMode(MENU[mi][0]);
+      else if (k === "b") putDown();
       return;
     }
-    if (k === "b") return setMode("menu");
     if (mode === "projects") {
-      if (k === "up" || k === "down") setPi((i) => (i + (k === "up" ? -1 : 1) + CATEGORIES.length) % CATEGORIES.length);
-      if (k === "a" || k === "right") openCollection(CATEGORIES[pi].id);
+      if (k === "up") setPi((i) => (i + PROJECT_ROWS.length - 1) % PROJECT_ROWS.length);
+      else if (k === "down") setPi((i) => (i + 1) % PROJECT_ROWS.length);
+      else if (k === "a" || k === "right") runRow(pi);
+      else if (k === "b" || k === "left") setMode("home");
       return;
     }
-    if (mode === "stack" && (k === "left" || k === "right")) setSi((i) => (i + (k === "left" ? -1 : 1) + nStack) % nStack);
-    else if (mode === "exp" && (k === "left" || k === "right")) setEi((i) => (i + (k === "left" ? -1 : 1) + EXPERIENCE.length) % EXPERIENCE.length);
-    else if (k === "up" || k === "down") scroll(k === "up" ? -40 : 40);
-  }, [mode, mi, pi, nStack, putDown, openCollection]);
+    // A section is open in the projected panel: ▲▼ scroll it, anything else closes it.
+    if (k === "up" || k === "down") panelBody.current?.scrollBy({ top: k === "up" ? -160 : 160, behavior: "smooth" });
+    else setMode("home");
+  }, [mode, mi, pi, putDown, runRow]);
 
   useEffect(() => {
-    if (view === "simple" || view === "projects") return;
+    if (view === "simple" || view === "projects" || fan !== null) return;
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement;
       if (["INPUT", "TEXTAREA", "SELECT"].includes(t.tagName) || (t.tagName === "BUTTON" && e.key === "Enter")) return;
@@ -96,9 +106,17 @@ export default function Portfolio() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [key, view, pickUp]);
+  }, [key, view, pickUp, fan]);
 
-  useEffect(() => { scr.current?.scrollTo(0, 0); }, [mode]);
+  // Keep the highlighted menu row visible inside the small screen.
+  useEffect(() => {
+    const s = scr.current, el = s?.querySelector<HTMLElement>(".lcd-item.on, .lcd-row.on");
+    if (!s) return;
+    if (!el || mode === "home" && mi === 0) { s.scrollTop = 0; return; }
+    const top = el.offsetTop, bottom = top + el.offsetHeight;
+    if (top < s.scrollTop + 24) s.scrollTop = top - 24;
+    else if (bottom > s.scrollTop + s.clientHeight - 8) s.scrollTop = bottom - s.clientHeight + 8;
+  }, [mi, pi, mode]);
   // While the console lies on the desk its buttons can't be clicked or tabbed to.
   useEffect(() => { if (face.current) face.current.inert = view !== "play"; }, [view]);
 
@@ -132,18 +150,17 @@ export default function Portfolio() {
     return () => window.removeEventListener("mousemove", move);
   }, []);
 
-  const pick = (i: number) => { setMi(i); setMode(MENU[i][0]); };
   const Btn = ({ k, children, cls, label }: { k: K; children?: React.ReactNode; cls?: string; label?: string }) => (
-    <button type="button" className={cls} data-l={label} onClick={() => key(k)} aria-label={k}>{children}</button>
+    <button type="button" className={cls} data-l={label} onClick={() => key(k)} aria-label={label ?? k}>{children}</button>
   );
 
   // Scale the objects to the window: desk size, picked-up size, record player size.
   const mobile = vp.w < 900;
-  const ds = mobile ? clamp((vp.w - 24) / 620, 0.5, 0.85) : clamp(Math.min(vp.w / 1380, vp.h / 820), 0.6, 1.25);
-  const ts = mobile ? clamp((vp.w - 24) / 560, 0.5, 0.85) : ds * 0.92;
-  const ps = clamp(Math.min((vp.h - 190) / 620, (vp.w - 32) / 390), 0.5, 1.25);
+  const ds = mobile ? clamp((vp.w - 24) / 620, 0.5, 0.85) : clamp(Math.min(vp.w / 1380, vp.h / 860), 0.6, 1.2);
+  const ts = mobile ? clamp((vp.w - 24) / 560, 0.5, 0.85) : clamp(Math.min(vp.w / 1380, vp.h / 820), 0.6, 1.25) * 0.92;
+  const ps = clamp(Math.min((vp.h - 110) / 650, (vp.w - 32) / 390), 0.5, 1.3);
 
-  const cursor = <div ref={cur} className="cursor pointer-events-none fixed left-0 top-0 z-[99] h-[18px] w-[18px] rounded-full border-2 border-acc opacity-0" aria-hidden />;
+  const cursor = <div ref={cur} className="cursor" aria-hidden />;
 
   if (view === "simple") return <>{cursor}<SimpleView onDesk={() => go("desk")} onProjects={() => go("projects", "web")} /></>;
   if (view === "projects") return (
@@ -151,7 +168,7 @@ export default function Portfolio() {
   );
 
   return (
-    <main className="desk" data-view={view} style={{ "--ds": ds, "--ts": ts, "--ps": ps } as React.CSSProperties}>
+    <main className="desk" data-view={view} data-panel={panel ? "on" : undefined} style={{ "--ds": ds, "--ts": ts, "--ps": ps } as React.CSSProperties}>
       {cursor}
       <div className="desk-wood" aria-hidden>
         <svg width="100%" height="100%">
@@ -166,12 +183,12 @@ export default function Portfolio() {
 
       <header className="desk-head">
         <p className="k">THE DESK OF</p>
-        <h1>Krupali Vekariya.</h1>
+        <h1>Krupali Vekariya<span>.</span></h1>
         <p className="d">Full-Stack AI Engineer in Rajkot, India. I turn complex ideas into practical, scalable products.</p>
         <p className="h">Pick up the console. Put on a record to hear my intro. Pull out the cartridge for projects.</p>
       </header>
       <div className="desk-top">
-        <button type="button" className="pill pill-dark" onClick={() => openCollection("web")}>Projects <span>↗</span></button>
+        <button type="button" className="pill pill-dark" onClick={() => setFan(0)}>Projects <span>↗</span></button>
         <button type="button" className="pill pill-dark" onClick={() => { setRecord(false); go("simple"); }}>Use simple view <span>↗</span></button>
       </div>
 
@@ -195,46 +212,60 @@ export default function Portfolio() {
         </div>
       )}
 
-      <div className="dim" onClick={putDown} aria-hidden />
+      <div className="dim" onClick={() => (panel ? setMode("home") : putDown())} aria-hidden />
 
       <div className="obj con-pos">
         <div className="rig con-rig" data-hot={view === "desk" || undefined} onClick={() => view === "desk" && pickUp()}>
           <div className="rig-shadow" />
-          <div className="cart" data-hot onClick={(e) => { e.stopPropagation(); if (view === "desk") openCollection("web"); }}><span>K/V COLLECTION · 01</span></div>
-          <Edges n={14} from="#d6cebb" to="#a99e86" />
+          <div className="cart" data-hot onClick={(e) => { e.stopPropagation(); if (view === "desk") setFan(0); }}><span>K/V COLLECTION · 01</span></div>
+          <Edges n={14} from="#dcdad3" to="#b4b1a9" />
           <div ref={face} className="console" role="application" aria-label="Interactive portfolio console">
-            <div className="c-top"><span className="c-slot" /></div>
+            <div className="c-rail" aria-hidden><span className="c-cam"><b /></span></div>
             <div className="bezel">
-              <span className="c-led" />
-              <div ref={scr} className="scr" tabIndex={0} aria-live="polite" onClick={() => mode === "title" && key("start")}>
+              <span className="c-led" aria-hidden />
+              <div ref={scr} className="scr" tabIndex={0} aria-live="polite">
                 <AnimatePresence mode="wait">
-                  <motion.div key={mode + (mode === "projects" ? pi : "") + (mode === "stack" ? si : "") + (mode === "exp" ? ei : "")}
-                    initial={{ clipPath: "inset(50% 0 50% 0)" }} animate={{ clipPath: "inset(0% 0 0% 0)" }} exit={{ opacity: 0 }} transition={{ duration: 0.25, ease: "easeOut" }}>
-                    <Screen mode={mode} mi={mi} pi={pi} si={si} ei={ei} onPick={pick} onOpen={openCollection} />
+                  <motion.div key={mode} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.18, ease: "easeOut" }}>
+                    <Screen mode={mode} mi={mi} pi={pi} onPick={(i) => { setMi(i); setMode(MENU[i][0]); }} onRow={runRow} />
                   </motion.div>
                 </AnimatePresence>
               </div>
-              <p className="bezel-cap">DOT MATRIX DISPLAY · PRESS START TO EXPLORE</p>
+              <p className="bezel-cap">DOT MATRIX DISPLAY · SCROLL TO EXPLORE</p>
             </div>
-            <p className="c-logo">K/V POCKET<sup>01</sup></p>
+            <p className="c-logo"><b>K/V</b>POCKET<sup>01</sup></p>
             <div className="c-ctrl">
-              <div className="dp"><Btn k="up" cls="u">▲</Btn><Btn k="left" cls="l">◀</Btn><i /><Btn k="right" cls="r">▶</Btn><Btn k="down" cls="d">▼</Btn></div>
-              <div className="ab"><Btn k="b" cls="abtn" label="B" /><Btn k="a" cls="abtn" label="A" /></div>
+              <div className="dp">
+                <Btn k="up" cls="u" label="Move up" /><Btn k="left" cls="l" label="Move left" /><i />
+                <Btn k="right" cls="r" label="Move right" /><Btn k="down" cls="d" label="Move down" />
+              </div>
+              <div className="ab"><Btn k="b" cls="abtn b" label="B" /><Btn k="a" cls="abtn a" label="A" /></div>
             </div>
-            <div className="c-sys"><Btn k="b" cls="sys" label="SELECT" /><Btn k="start" cls="sys" label="START" /></div>
+            <div className="c-sys"><Btn k="start" cls="sys" label="START" /></div>
             <div className="grille" aria-hidden><i /><i /><i /><i /><i /><i /></div>
+            <p className="c-phones" aria-hidden>◉ PHONES</p>
           </div>
         </div>
         <button type="button" className="pill con-pill" onClick={pickUp}>Pick up &amp; play <span>↗</span></button>
-        <button type="button" className="pill col-pill" onClick={() => openCollection("web")}>Browse projects <span>↗</span></button>
+        <button type="button" className="pill col-pill" onClick={() => setFan(0)}>Browse projects <span>↗</span></button>
+        <p className="play-hint">ARROWS TO MOVE · ENTER TO SELECT · ESC TO GO BACK</p>
       </div>
 
-      <div className="play-bar">
-        <button type="button" className="pill" onClick={putDown}>Put it down <span>↙</span></button>
-        <p>Arrow keys move · Enter selects · Esc goes back</p>
+      <AnimatePresence>
+        {panel && <Projector key="proj" section={panel} onClose={() => setMode("home")} bodyRef={panelBody} />}
+      </AnimatePresence>
+
+      <div className="play-ui">
+        <button type="button" className="pill pill-dark" onClick={() => setRecord(!playing)} aria-pressed={playing}>
+          <span className={`rec ${playing ? "on" : ""}`} aria-hidden />{playing ? "Stop intro" : "My intro"} <span>↗</span>
+        </button>
+        <button type="button" className="pill pill-dark" onClick={putDown}><span>↙</span> Back to desk</button>
       </div>
 
       <p className="desk-foot">WEB · MOBILE · AI · SAAS · CRM · ERP — BUILT END TO END.</p>
+
+      <AnimatePresence>
+        {fan !== null && <CardFan key="fan" start={fan} onClose={() => setFan(null)} onCollection={(c) => openCollection(c)} />}
+      </AnimatePresence>
     </main>
   );
 }

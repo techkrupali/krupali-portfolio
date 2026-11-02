@@ -8,7 +8,7 @@ export type Status = "live" | "ongoing";
 export type CategoryId = "web" | "apps" | "crm";
 
 export const CATEGORIES: { id: CategoryId; no: string; name: string; short: string; blurb: string; color: string }[] = [
-  { id: "web", no: "01", name: "Business Websites", short: "WEBSITES", blurb: "E-commerce, fashion and corporate websites, live and in use.", color: "#ff9a3c" },
+  { id: "web", no: "01", name: "Business Websites", short: "WEBSITES", blurb: "E-commerce, fashion and corporate websites, live and in use.", color: "#d9ef9f" },
   { id: "apps", no: "02", name: "Mobile Applications", short: "MOBILE APPS", blurb: "Dating, transportation, fitness and fintech apps on iOS and Android.", color: "#c58bff" },
   { id: "crm", no: "03", name: "CRM & Enterprise Software", short: "CRM & ENTERPRISE", blurb: "A connected business ecosystem: website, mobile app and internal CRM.", color: "#4cc3ff" },
 ];
@@ -120,6 +120,14 @@ export const MORE_PROJECTS: [string, string][] = [
   ["OrdoGo", "Pharmacy & delivery ecosystem"], ["EatSure", "Food ordering app"], ["Ladder Strength Training", "Fitness app"],
   ["Raksha Divine Companion", "Mobile application"], ["Banking & Fintech Apps", "Fintech"],
 ];
+
+// Rows on the console's Projects screen.
+export const PROJECT_ROWS = [
+  { id: "ms", name: "MillerStorm", line: "Featured case study · website, iOS app & CRM", action: "Open case ✧" },
+  { id: "web", name: "Business websites", line: `E-commerce, fashion & corporate · ${SITES.length} live sites`, action: "View cards ◇" },
+  { id: "apps", name: "Mobile apps", line: "Dating, transport, fitness & fintech · iOS & Android", action: "View cards ◇" },
+  { id: "all", name: "Full collection", line: "Every project in one place.", action: "✦ Open" },
+] as const;
 
 export const host = (url: string) => new URL(url).hostname.replace(/^www\./, "");
 export const projectCount = (id: CategoryId) => (id === "web" ? SITES.length : id === "apps" ? APPS.length : 1);

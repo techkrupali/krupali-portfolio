@@ -17,14 +17,17 @@ Screenshots and app images are in `public/projects/` (captured November 2026 fro
 The desk page text (header, footer) is in `components/Portfolio.tsx`. Colors are the variables at the top of `app/globals.css`.
 
 ## Pages
-- **Desk** (default): "Pick up & play" uses the console, the cartridge / "Browse projects" opens the Collection, and "Put on a record" plays your spoken intro with captions.
+- **Desk** (default): "Pick up & play" uses the console, "Put on a record" plays your spoken intro with captions, and the cartridge / "Browse projects" opens the card fan.
+- **Console**: the screen shows the home menu and the Projects list (`components/Screens.tsx`, text in `HOME` / `MENU` in `lib/content.ts`). About, Experience, Tech stack, What I build and Contact open in the panel projected above the console (`components/Projector.tsx`).
+- **Card fan**: every project as a foil trading card (`components/CardFan.tsx`); "Pull this card" opens its details.
+- **Collection** (all projects, full page): `/?view=projects`, or straight to a category with `&cat=apps` or `&cat=crm`.
+- **Simple view**: every section on one plain page: `/?view=simple`.
+- **Fonts**: Inter (headlines) and DM Mono (labels), set in `app/layout.tsx`.
 
 ## Spoken intro
 - The words are `INTRO` in `lib/content.ts`. The visitor's browser reads them aloud (`lib/intro.ts`), choosing the most natural female English voice on their device (e.g. Microsoft Ava/Jenny Natural in Edge, Google US English in Chrome, Samantha on Apple devices).
 - Pronunciation fixes for technical words are in the `SAY` list in `lib/intro.ts`.
 - For the exact same voice on every device, add a recording at `public/intro.mp3` (your own voice, or a voice service whose terms allow public use) and set `INTRO_AUDIO = "/intro.mp3"` in `lib/content.ts`. Captions keep working.
-- **Collection** (projects): `/?view=projects`, or straight to a category with `&cat=apps` or `&cat=crm`.
-- **Simple view**: every section on one plain page: `/?view=simple`.
 
 ## Contact form
 - Validated client-side and server-side with Zod (`lib/schema.ts`).

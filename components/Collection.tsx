@@ -239,7 +239,7 @@ function MillerStorm() {
   );
 }
 
-function DetailView({ d, onClose, onNav }: { d: NonNullable<Detail>; onClose: () => void; onNav: (dir: number) => void }) {
+export function DetailView({ d, onClose, onNav }: { d: NonNullable<Detail>; onClose: () => void; onNav: (dir: number) => void }) {
   const closeRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     closeRef.current?.focus();

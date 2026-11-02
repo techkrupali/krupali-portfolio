@@ -5,7 +5,6 @@ import { ABOUT, CFG, EXPERIENCE, STACK, STACK_INTRO, roleDates, roleLength } fro
 import { APPS, INDUSTRIES, MILLERSTORM, MORE_PROJECTS, SITES, host } from "@/lib/projects";
 import { INTRO_LINES, createIntro } from "@/lib/intro";
 import { Device, Laptop, Monitor } from "./Collection";
-import ContactForm from "./ContactForm";
 
 const NAV = [["about", "About"], ["work", "Work"], ["experience", "Experience"], ["stack", "Stack"], ["contact", "Contact"]] as const;
 const ease = [0.2, 0.8, 0.2, 1] as const;
@@ -77,10 +76,6 @@ function Hero() {
     setOn(true);
     intro.current.start(setLine, () => { setOn(false); setLine(-1); });
   };
-  const stats: [string, string][] = [
-    ["3+", "Years building software"], [String(SITES.length + APPS.length + 1), "Featured projects"],
-    [String(INDUSTRIES.length), "Industries"], ["Web · iOS · Android", "Platforms"],
-  ];
   return (
     <section id="top" className="relative overflow-hidden">
       <div className="sv-hero-bg" aria-hidden />
@@ -115,20 +110,10 @@ function Hero() {
           <div className="sv-mini sv-c2"><div className="bar"><i /><i /><i /></div><img src="/projects/web/raasta.webp" alt="Raasta Deals website" /></div>
           <img className="sv-c3" src={MILLERSTORM.appShots[1]} alt="MillerStorm iOS app" />
           <div className="sv-c4">
-            <div className="flex -space-x-3">{APPS.map((a) => <img key={a.id} src={a.icon} alt="" className="h-10 w-10 rounded-xl ring-2 ring-[#fffdf8]" />)}</div>
+            <div className="flex -space-x-3">{APPS.map((a) => <img key={a.id} src={a.icon} alt="" className="h-10 w-10 rounded-xl ring-2 ring-[#fbfbf7]" />)}</div>
             <span>{APPS.length} apps · iOS &amp; Android</span>
           </div>
         </motion.div>
-      </div>
-      <div className="sv-wrap relative">
-        <dl className="grid grid-cols-2 border-y border-line md:grid-cols-4">
-          {stats.map(([n, l], i) => (
-            <motion.div key={l} {...rv(i * 0.06)} className={`px-1 py-6 md:px-6 md:py-8 ${i % 2 ? "border-l border-line pl-5" : ""} ${i === 2 ? "md:border-l md:border-line md:pl-6" : ""} ${i > 1 ? "border-t border-line md:border-t-0" : ""}`}>
-              <dd className={`font-bold leading-none tracking-[-0.03em] ${n.length > 4 ? "pt-2 text-[clamp(18px,2vw,26px)]" : "text-[clamp(26px,3.4vw,46px)]"}`}>{n}</dd>
-              <dt className="mt-2 font-body text-[11px] uppercase tracking-[.16em] text-mut">{l}</dt>
-            </motion.div>
-          ))}
-        </dl>
       </div>
     </section>
   );
@@ -149,7 +134,7 @@ function About() {
           <motion.div {...rv()} className="space-y-5 text-lg leading-relaxed">
             {ABOUT.intro.map((p, i) => <p key={p} className={i === 0 ? "text-[clamp(22px,2.2vw,28px)] font-medium leading-snug" : "text-mut"}>{p}</p>)}
           </motion.div>
-          <motion.div {...rv()} className="mt-12 rounded-3xl border border-line bg-[#fffdf8] p-6 md:p-8">
+          <motion.div {...rv()} className="mt-12 rounded-3xl border border-line bg-[#fbfbf7] p-6 md:p-8">
             <p className="sv-mini-label">{ABOUT.toolkit.title}</p>
             <p className="mt-2 text-mut">{ABOUT.toolkit.lead}</p>
             <dl className="mt-5">
@@ -276,7 +261,7 @@ function Work({ onProjects }: { onProjects: () => void }) {
 
         <motion.div {...rv()} className="mt-14 flex flex-wrap items-center gap-2">
           <span className="mr-2 font-body text-[11px] uppercase tracking-[.16em] text-mut">Also worked on</span>
-          {MORE_PROJECTS.map(([n, d]) => <span key={n} title={d} className="rounded-full border border-line bg-[#fffdf8] px-3.5 py-1.5 text-sm font-medium">{n}</span>)}
+          {MORE_PROJECTS.map(([n, d]) => <span key={n} title={d} className="rounded-full border border-line bg-[#fbfbf7] px-3.5 py-1.5 text-sm font-medium">{n}</span>)}
         </motion.div>
       </div>
     </section>
@@ -290,7 +275,7 @@ function Experience() {
         <Head no="04" label="Experience" title="Where I’ve built things." />
         <ol className="space-y-6">
           {EXPERIENCE.map((r) => (
-            <motion.li key={r.company} {...rv()} className="grid gap-6 rounded-3xl border border-line bg-[#fffdf8] p-6 md:grid-cols-[220px_1fr] md:gap-10 md:p-10">
+            <motion.li key={r.company} {...rv()} className="grid gap-6 rounded-3xl border border-line bg-[#fbfbf7] p-6 md:grid-cols-[220px_1fr] md:gap-10 md:p-10">
               <div>
                 <p className="font-body text-sm font-medium">{roleDates(r)}</p>
                 <p className="mt-1.5 font-body text-[11px] uppercase tracking-[.14em] text-mut">{roleLength(r)} · {r.type}</p>
@@ -322,7 +307,7 @@ function Stack() {
         <Head no="05" label="Tech stack" title={STACK_INTRO.title}>{STACK_INTRO.text}</Head>
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {STACK.map((g, i) => (
-            <motion.article key={g.no} {...rv((i % 3) * 0.06)} className="rounded-3xl border border-line bg-[#fffdf8] p-6 md:p-7">
+            <motion.article key={g.no} {...rv((i % 3) * 0.06)} className="rounded-3xl border border-line bg-[#fbfbf7] p-6 md:p-7">
               <span className="sv-num">{g.no}</span>
               <h3 className="mt-3 text-[22px] font-bold leading-tight tracking-[-0.02em]">{g.name}</h3>
               <p className="mt-2 text-[15px] text-mut">{g.blurb}</p>
@@ -341,28 +326,25 @@ function Contact({ onDesk }: { onDesk: () => void }) {
   ];
   return (
     <section id="contact" className="sv-dark">
-      <div className="sv-wrap grid gap-14 py-20 md:py-28 lg:grid-cols-[1.05fr_.95fr]">
+      <div className="sv-wrap grid gap-14 py-20 md:py-28 lg:grid-cols-[.95fr_1.05fr] lg:items-end lg:gap-16">
         <motion.div {...rv()}>
           <p className="sv-label"><span>06</span>Contact</p>
-          <h2 className="mt-6 text-[clamp(46px,7vw,104px)] font-bold leading-[.9] tracking-[-0.05em]">Have an idea?<br /><span className="text-acc">Let’s build it.</span></h2>
+          <h2 className="mt-6 text-[clamp(44px,5.8vw,88px)] font-bold leading-[.92] tracking-[-0.05em]">Have an idea?<br /><span className="text-acc">Let’s build it.</span></h2>
           <p className="mt-7 max-w-[46ch] text-lg leading-relaxed text-mut">I’m always interested in building meaningful products, collaborating with ambitious people, and solving real-world problems through technology.</p>
-          <ul className="mt-10">
+        </motion.div>
+        <motion.div {...rv(0.1)}>
+          <ul>
             {rows.map(([label, text, href, ext]) => (
               <li key={label}>
                 <a href={href} className="sv-row" {...(ext ? { target: "_blank", rel: "noopener noreferrer" } : {})}>
                   <span className="font-body text-[11px] uppercase tracking-[.16em] text-acc">{label}</span>
-                  <span className="min-w-0 break-words text-[clamp(18px,2vw,26px)] font-semibold">{text}</span>
+                  <span className="min-w-0 break-words text-[clamp(17px,1.75vw,24px)] font-semibold tracking-[-0.01em]">{text}</span>
                   <span className="sv-arrow" aria-hidden>↗</span>
                 </a>
               </li>
             ))}
           </ul>
           <p className="mt-6 font-body text-[11px] uppercase tracking-[.16em] text-mut">Rajkot, Gujarat, India</p>
-        </motion.div>
-        <motion.div {...rv(0.1)} className="sv-formcard self-start">
-          <p className="text-2xl font-bold tracking-[-0.02em]">Send a message</p>
-          <p className="mt-1 text-sm text-mut">Tell me about your project and I’ll reply by email.</p>
-          <div className="mt-6"><ContactForm /></div>
         </motion.div>
       </div>
       <footer className="border-t border-line">
