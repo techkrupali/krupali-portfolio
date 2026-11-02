@@ -1,10 +1,20 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Mono, Inter } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
 // Inter for headlines and UI, DM Mono for labels and the console screen.
-const head = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], variable: "--font-head", display: "swap" });
-const body = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-body", display: "swap" });
+// Self-hosted from app/fonts (SIL Open Font License) so builds never depend on Google Fonts being reachable.
+const head = localFont({
+  src: "./fonts/inter-latin-wght-normal.woff2", weight: "100 900", style: "normal",
+  variable: "--font-head", display: "swap", fallback: ["system-ui", "Arial", "sans-serif"],
+});
+const body = localFont({
+  src: [
+    { path: "./fonts/dm-mono-latin-400-normal.woff2", weight: "400", style: "normal" },
+    { path: "./fonts/dm-mono-latin-500-normal.woff2", weight: "500", style: "normal" },
+  ],
+  variable: "--font-body", display: "swap", fallback: ["ui-monospace", "Menlo", "monospace"],
+});
 
 export const metadata: Metadata = {
   title: "Krupali Vekariya | Full-Stack AI Engineer",
