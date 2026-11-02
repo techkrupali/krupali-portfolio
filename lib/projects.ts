@@ -1,7 +1,7 @@
 // EDIT ME: real projects shown in the Collection, on the console and in the simple view.
 // Overviews describe each product from its own public website or store listing (checked November 2026).
 // `contribution` = what YOU did on the project. Left empty where it isn't confirmed yet; empty fields are hidden on the site.
-// `tech` on websites = the platform detected on the live site. Replace it with your own stack if you prefer.
+// `tech` (optional) = technologies you used, e.g. tech: ["Next.js", "Node.js"]. Leave it out to hide the line.
 // Screenshots live in /public/projects. Replace any file with a newer capture using the same name.
 
 export type Status = "live" | "ongoing";
@@ -23,22 +23,22 @@ export const SITES: Site[] = [
   {
     id: "raasta", name: "Raasta Deals", url: "https://raastadeals.com/", category: "Business Website · Website development", industry: "E-commerce · Electronics",
     overview: "Online store for discounted electronics: top brands at up to 75% off, with free shipping and 30-day returns.",
-    status: "live", tech: ["Shopify"], shot: "/projects/web/raasta.webp",
+    status: "live", shot: "/projects/web/raasta.webp",
   },
   {
     id: "juice", name: "Get The Juice", url: "https://getthejuice.store/", category: "E-commerce / Business Website", industry: "E-commerce · Jewelry & apparel",
     overview: "Handcrafted jewelry in 925 silver, gold and lab-grown diamond, plus leather and clothing for him and her, sold online and in-store in Banani.",
-    status: "live", tech: ["Shopify"], shot: "/projects/web/juice.webp",
+    status: "live", shot: "/projects/web/juice.webp",
   },
   {
     id: "dept", name: "DEPT", url: "https://www.dept.global/en-in/", category: "Corporate / Digital Agency Website", industry: "Corporate · Digital agency",
     overview: "Website for DEPT®, a “Growth Invention” company working at the intersection of technology and marketing.",
-    status: "live", tech: ["WordPress"], shot: "/projects/web/dept.webp",
+    status: "live", shot: "/projects/web/dept.webp",
   },
   {
     id: "pistola", name: "Pistola Denim", url: "https://www.pistoladenim.com/", category: "E-commerce / Fashion Website", industry: "E-commerce · Fashion",
     overview: "Premium women's apparel: everyday essentials with a utilitarian sensibility.",
-    status: "live", tech: ["Shopify"], shot: "/projects/web/pistola.webp",
+    status: "live", shot: "/projects/web/pistola.webp",
   },
 ];
 
